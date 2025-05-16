@@ -29,11 +29,23 @@ jobs:
       - name: Run tests and generate coverage
         run: npm run test:coverage
 
-      - name: Commit and push coverage badge
+      - name: Update README and commit badge
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add coverage.svg
-          # Commit only if there are changes to the badge
-          git diff --staged --quiet || git commit -m "docs: Update coverage badge [skip ci]"
+
+          # Get the current commit SHA
+          COMMIT_SHA=$(git rev-parse --short HEAD)
+
+          # Update the README.md
+          # This sed command looks for coverage.svg?v= followed by any characters until a )
+          # and replaces it with coverage.svg?v=NEW_SHA)
+          # The [^)]* part matches any character that is not a closing parenthesis.
+          # Using a different delimiter for sed (like #) to avoid issues if SHAs contain /
+          sed -i "s#\(coverage\.svg?v=\)[^)]*#\1${COMMIT_SHA}#" README.md
+
+          git add coverage.svg README.md
+
+          # Commit only if there are changes
+          git diff --staged --quiet || git commit -m "docs: Update coverage badge and README [skip ci]"
           git push
