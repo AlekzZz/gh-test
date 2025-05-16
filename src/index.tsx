@@ -1,3 +1,11 @@
+export const testFn = () => {
+  return "test";
+};
+
+export const testFn2 = () => {
+  return "test2";
+};
+
 function App() {
   return (
     <div className="App">
